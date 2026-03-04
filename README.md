@@ -178,9 +178,9 @@ Checklist : tests passés, lint OK, documentation à jour
 Support & contact
 Pour questions et support :
 
-Mainteneur : [ton-nom] — [votre-email@example.com]
+Mainteneur : MULUME IZUBA OSCAR — Oscarmulume1612@gmail.com
 Issues : ouvre une issue sur GitHub.
-Pour formations payantes / accompagnement : contact@exemple.com
+Pour formations payantes / accompagnement : oscarmulume1612@gmail.com
 Licence
 Ce projet est sous licence GPL‑3.0 — voir fichier LICENSE.
 
