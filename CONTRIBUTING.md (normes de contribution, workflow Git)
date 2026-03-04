@@ -1,0 +1,40 @@
+markdown
+# CONTRIBUTING
+
+Merci pour votre volonté de contribuer. Ce document décrit le workflow, les normes de commit et les bonnes pratiques.
+
+1. Code of conduct
+Voir CONTRIBUTOR_COVENANT.md
+
+2. Workflow Git recommandé
+- Fork → branch feature/bugfix/xxxx → commit → PR vers main/dev
+- Nom de branche : type/description (feature/ci-lint, fix/deploy-vm)
+- Commit messages : Conventional Commits
+  - Ex : feat(scripts): add idempotent deploy-vm.sh
+  - Ex : fix(ci): correct yaml lint step
+
+3. Pull Request
+- Utiliser le template PULL_REQUEST_TEMPLATE.md
+- Lier les issues via "Fixes #NN"
+- Inclure captures, logs et description technique
+- Attendre au moins une revue approuvée avant merge
+
+4. Tests & qualité
+- Exécuter les tests locaux : shellcheck scripts/*.sh
+- Respecter les règles d'accessibilité et documentation
+- CI obligatoire pour tout PR
+
+5. Sécurité
+- Ne pas committer de secrets (utilisez git-crypt / secrets manager)
+- Signaler vulnérabilités via security@ (ou ouvrir issue privée si nécessaire)
+
+6. Licence
+- En contribuant, vous acceptez que votre contribution soit sous GPL‑3.0.
+
+CONTRIBUTOR_COVENANT.md (condescipline)
+markdown
+# Code of Conduct
+
+Ce projet adhère au Code of Conduct du Contributor Covenant v2.1.
+
+Les contributeurs sont tenus de maintenir un environnement respectueux, inclusif et professionnel. Tout comportement inapproprié sera traité par les mainteneurs.
