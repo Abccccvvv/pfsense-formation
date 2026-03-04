@@ -1,0 +1,83 @@
+Dans un environnement à fort trafic, la sécurité d’une API REST doit protéger la confidentialité, l’intégrité et la disponibilité tout en restant performante et observ able. Les recommandations ci‑dessous couvrent l’authentification/autorisation, la conception, la protection contre les attaques, la gestion des secrets, la surveillance, la résilience et la conformité.
+
+1 — Authentification et autorisation
+
+Authentification forte : utilisez OAuth 2.0 (Authorization Code pour flux utilisateur, Client Credentials pour services machine‑to‑machine) ou OpenID Connect pour identité fédérée. Évitez l’authentification basée uniquement sur un mot de passe ou un simple token statique.
+Tokens courts + rafraîchissement : émettez des access tokens à durée de vie courte (ex. minutes) et utilisez refresh tokens pour renouvellement. Validez l’expiration côté serveur.
+Scopes / RBAC : appliquez le principe du moindre privilège avec scopes OAuth et/ou contrôle d’accès basé sur les rôles (RBAC). Pour des contrôles fins, combinez RBAC avec ABAC (politiques basées sur attributs).
+Revocation/Rotation : prévoir un mécanisme de révocation immédiate des tokens compromis et une politique de rotation régulière des clés et certificats.
+2 — Transport et chiffrement
+
+TLS obligatoire : n’autorisez jamais le HTTP en clair en production. TLS 1.2+ ou idéalement TLS 1.3. Désactivez les suites faibles et les versions obsolètes.
+HSTS : publier Strict‑Transport‑Security pour forcer les connexions HTTPS côté client.
+Chiffrement des données sensibles au repos : chiffrez les données sensibles dans les bases et les backups (clé gérée dans un KMS/Vault).
+3 — Validation d’entrée et protection applicative
+
+Validation stricte côté serveur : validez schémas JSON (ex. JSON Schema), types, longueurs et valeurs autorisées. Refusez l’entrée non conforme.
+Sanitation : protégez contre les injections (SQL/NoSQL/command injection) et l’XSS si la même API sert des contenus web.
+Limiter la taille des requêtes et le contenu (Content‑Type) pour réduire les risques de DoS basés sur payloads volumineux.
+4 — Limitation, QoS et résilience face au trafic élevé
+
+Rate limiting et quotas : appliquez des limites par API key, utilisateur, IP, ou client. Usez de niveaux (burst + steady) pour tolérer rafales. Implémentez aussi quotas par plan.
+Circuit breakers et backpressure : utilisez des patterns de résilience (circuit breaker, retry with backoff, bulkhead) pour éviter l’effondrement en cas de surcharge.
+Caching et CDN : mettre en cache les réponses idempotentes (GET) via cache‑control et, si approprié, un CDN pour décharger le backend.
+Auto‑scaling : dimensionnez les services backend (containers/VMs) pour monter en charge automatiquement, testez le scaling under load.
+5 — Protection contre attaques réseau et applicatives
+
+WAF / API Gateway : placez une gateway/API management (Kong, Kong Enterprise, Apigee, AWS API Gateway) et/ou un WAF en frontal pour blocage des patterns d’attaque, authentification centralisée, throttling et transformation.
+Protection DDoS : utilisez des services de mitigation (cloud/CDN, scrubbing) et listes de blocage, et prévoyez des seuils d’alerte.
+CSRF / CORS : pour APIs consommées depuis des navigateurs, configurez CORS de façon restrictive et protégez endpoints côté session si nécessaire.
+6 — journalisation, traçabilité et surveillance
+
+Logs structurés : consignez requêtes critiques (method, path, client id, user id, status, latency) sans y écrire de secrets. Utilisez JSON logs pour traitement automatisé.
+Traçabilité distribuée : corrélez les requêtes avec un identifiant de trace (trace id) pour diagnostiquer latence et erreurs dans les chaînes microservices.
+Monitoring et alerting : métriques (RPS, latence p95/p99, erreurs 4xx/5xx, saturation des ressources), alertes SLA et runbook d’escalade.
+Stockage et rétention des logs : conformez‑vous aux exigences (audit NIST/ISO) en conservant journaux signifiants et protégés (intégrité et chiffrement).
+7 — Gestion des secrets et des identités machine
+
+Secret vaults : stockez clés, tokens et certificats dans un gestionnaire de secrets (HashiCorp Vault, AWS Secrets Manager, Azure Key Vault). Pas de secrets dans le code ni dans les repos.
+IAM granulaire : pour accès aux ressources cloud, appliquez des politiques d’identité minimales et comptes de service distincts.
+Rotation automatique : automatisez la rotation des clés et certificats avec déploiement sans interruption.
+8 — Tests, scans et cycles de développement sécurisés
+
+SAST/DAST/IAST : intégrez dans CI des outils d’analyse statique, tests d’API dynamiques et analyses de composition logicielle (SCA) comme Trivy, Snyk, OWASP ZAP, etc.
+Tests de charge / chaos engineering : simulez trafic réel, tests de montée en charge et échecs contrôlés (chaos) pour valider résilience.
+Revue de sécurité et pentests réguliers : audits externes et correction des findings.
+9 — Conception API et bonnes pratiques d’implémentation
+
+Principes RESTful et idempotence : utiliser méthodes correctement (GET safe/idempotent, PUT idempotent, POST non‑idempotent) pour faciliter retries.
+Versioning : versionnez vos API (URI ou header) pour permettre évolutions sans rupture.
+Pagination et filtres : designs efficaces pour grandes réponses (pagination cursors) et limites par défaut.
+Contrats et schemas : publier OpenAPI/Swagger pour permettre génération de clients, tests et validation automatique.
+10 — Gouvernance, conformité et exigences réglementaires
+
+Mapping contrôles : documentez comment l’API satisfait les contrôles NIST SP 800‑53, CIS Benchmarks et ISO/IEC 27001 (ex. qui gère l’authentification, la journalisation, la rotation des clés).
+Politique de sécurité et runbooks : maintenez playbooks d’incident, procédures de réponse, POC d’escalade.
+Exigences légales : chiffrement des données personnelles en accord avec RGPD/lois locales, gestion des demandes d’accès/suppression.
+11 — Performances et coût
+
+Mesurez coût par requête (CPU, mémoire, I/O) et optimisez (profils, caches, compression).
+Compression et multiplexing : gzip/deflate ou brotli pour réponses larges, HTTP/2 pour réduction de la latence.
+Connection pooling et keep‑alive côté clients pour réduire overhead réseau.
+12 — Automatisation opérationnelle
+
+IaC et pipelines : provisionnez gateways, WAF et autoscaling via IaC (Terraform/Ansible). CI/CD pour déploiements contrôlés et rollbacks automatisés.
+Feature flags : déployer changements progressifs et retour arrière rapide en cas de régression.
+Application au contexte pfSense Formation
+
+API d’administration et d’automatisation : si vous fournissez des APIs pour automatiser pfSense ou vos scripts (ex. gestion de configs, import/export, déclenchement de backup), appliquez OAuth2 Client Credentials pour les intégrations machine‑to‑machine et RBAC strict pour limiter opérations sensibles (ex. modification règles firewall).
+Gateway / Proxy : placez une API Gateway en front pour authentification centralisée, throttling et WAF afin de protéger les endpoints d’automatisation et les exports de configuration.
+CI et scans : dans vos workflows GitHub Actions, ajoutez SCA (Trivy/Snyk) et DAST (OWASP ZAP) pour vérifier les services exposés pendant les tests d’intégration. Automatisez le linting des schémas JSON (OpenAPI) et la validation des réponses.
+Logs et conformité : centralisez logs d’accès et d’audit des API (export config, restore) vers votre SIEM (Graylog/ELK) et conservez‑les conformément aux exigences NIST/ISO. Assurez l’intégrité des fichiers de config exportés (signature/GPG).
+Protection contre abus: pour lab publics ou démos, appliquez quotas par compte et captchas ou validation d’e‑mail pour empêcher l’abus automatisé.
+Checklist rapide (à intégrer dans docs/hardening.md)
+
+ TLS 1.3 obligatoire, HSTS activé.
+ OAuth2/OIDC pour auth, tokens courts, scopes définis.
+ Rate limiting + circuit breaker configurés.
+ WAF/API gateway en frontal.
+ Logs structurés + trace id + centralisation SIEM.
+ Secrets dans Vault, rotation automatique.
+ SAST/DAST/SCA dans CI (ex. Trivy, Snyk, OWASP ZAP).
+ Tests de charge et chaos engineering périodiques.
+ Mapping NIST/CIS/ISO documenté et preuves stockées.
